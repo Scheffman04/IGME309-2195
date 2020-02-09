@@ -275,9 +275,35 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	// calculate angle
+	float fAngle = 2 * PI / a_nSubdivisions;
+
+	// generate vertex coordinates
+	vector3 center = vector3(0, 0, 0);
+	vector3 top = vector3(0, a_fHeight, 0);
+	vector3* points = new vector3[a_nSubdivisions];
+
+	// populate points
+	for(int i = 0; i < a_nSubdivisions; i++)
+	{
+		points[i] = vector3(a_fRadius * cos(fAngle * i), 0, a_fRadius * sin(fAngle * i));
+	}
+
+	// generate tris
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		if (i + 1 < a_nSubdivisions)
+		{
+			AddTri(center, points[i], points[i + 1]);
+			AddTri(points[i + 1], points[i], top);
+		}
+		else
+		{
+			AddTri(center, points[i], points[0]);
+			AddTri(points[0], points[i], top);
+		}
+	}
+
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
@@ -299,9 +325,44 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	// calculate angle
+	float fAngle = 2 * PI / a_nSubdivisions;
+
+	// generate vertex coordinates
+	vector3 center = vector3(0, a_fHeight, 0);
+	vector3* topPoints = new vector3[a_nSubdivisions];
+	vector3* botPoints = new vector3[a_nSubdivisions];
+
+	// populate point holders
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		topPoints[i] = vector3(a_fRadius * cos(fAngle * i), a_fHeight, a_fRadius * sin(fAngle * i));
+		botPoints[i] = vector3(a_fRadius * cos(fAngle * i), -a_fHeight, a_fRadius * sin(fAngle * i));
+	}
+
+	// generate tris
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		if (i + 1 < a_nSubdivisions)
+		{
+			AddTri(center, topPoints[i+1], topPoints[i]);
+			AddTri(-center, botPoints[i], botPoints[i + 1]);
+		}
+		else
+		{
+			AddTri(center, topPoints[0], topPoints[i]);
+			AddTri(-center, botPoints[i], botPoints[0]);
+		}	
+	}
+
+	// generate quads
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		if (i + 1 < a_nSubdivisions)
+			AddQuad(botPoints[i+1], botPoints[i], topPoints[i+1], topPoints[i]);
+		else
+			AddQuad(botPoints[0], botPoints[i], topPoints[0], topPoints[i]);
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
@@ -329,9 +390,53 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	// calculate angle
+	float fAngle = 2 * PI / a_nSubdivisions;
+
+	// center point
+	// inner + outer vertices
+	vector3 center = vector3(0, a_fHeight, 0);
+
+	vector3* outerUpperPoints = new vector3[a_nSubdivisions];
+	vector3* innerUpperPoints = new vector3[a_nSubdivisions];
+
+	vector3* outerLowerPoints = new vector3[a_nSubdivisions];
+	vector3* innerLowerPoints = new vector3[a_nSubdivisions];
+
+	// populate point holders
+	for(int i = 0; i < a_nSubdivisions; i++)
+	{
+		outerUpperPoints[i] = vector3(a_fOuterRadius * cos(fAngle * i), a_fHeight, a_fOuterRadius * sin(fAngle * i));
+		innerUpperPoints[i] = vector3(a_fInnerRadius * cos(fAngle * i), a_fHeight, a_fInnerRadius * sin(fAngle * i));
+
+		outerLowerPoints[i] = vector3(a_fOuterRadius * cos(fAngle * i), -a_fHeight, a_fOuterRadius * sin(fAngle * i));
+		innerLowerPoints[i] = vector3(a_fInnerRadius * cos(fAngle * i), -a_fHeight, a_fInnerRadius * sin(fAngle * i));
+	}
+
+	// generate quads
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		if (i + 1 < a_nSubdivisions)
+		{
+			// upper + Lower rings
+			AddQuad(outerUpperPoints[i + 1], outerUpperPoints[i], innerUpperPoints[i + 1], innerUpperPoints[i]);
+			AddQuad(outerLowerPoints[i], outerLowerPoints[i + 1], innerLowerPoints[i], innerLowerPoints[i + 1]);
+
+			// upper + Lower Walls
+			AddQuad(outerLowerPoints[i + 1], outerLowerPoints[i], outerUpperPoints[i + 1], outerUpperPoints[i]);
+			AddQuad(innerLowerPoints[i], innerLowerPoints[i + 1], innerUpperPoints[i], innerUpperPoints[i + 1]);
+		}
+		else
+		{
+			// upper + lower Rings
+			AddQuad(outerUpperPoints[0], outerUpperPoints[i], innerUpperPoints[0], innerUpperPoints[i]);
+			AddQuad(outerLowerPoints[i], outerLowerPoints[0], innerLowerPoints[i], innerLowerPoints[0]);
+
+			// upper + lower walls
+			AddQuad(outerLowerPoints[0], outerLowerPoints[i], outerUpperPoints[0], outerUpperPoints[i]);
+			AddQuad(innerLowerPoints[i], innerLowerPoints[0], innerUpperPoints[i], innerUpperPoints[0]);
+		}
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
@@ -375,9 +480,9 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 		a_fRadius = 0.01f;
 
 	//Sets minimum and maximum of subdivisions
-	if (a_nSubdivisions < 1)
+	if (a_nSubdivisions < 19)
 	{
-		GenerateCube(a_fRadius * 2.0f, a_v3Color);
+		GenerateSphere(a_fRadius * 2.0f, 20.0f,a_v3Color);
 		return;
 	}
 	if (a_nSubdivisions > 6)
@@ -386,9 +491,58 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	// vector for holding vector positions
+	std::vector<vector3> points;
+
+	// floats for vertex position
+	float f_X, f_Y, f_Z, f_XY;
+
+	// floats for angles
+	float f_hStep = 2 * PI / a_nSubdivisions; // angle between each horizontal ring section
+	float f_vStep = PI / a_nSubdivisions; // angle between each vertical section
+	float f_hAngle, f_vAngle;
+
+	for(int i = 0; i <= a_nSubdivisions; i++)
+	{
+		// start with vertical strips
+		f_vAngle = PI / 2 - i * f_vStep;
+		f_XY = a_fRadius * cosf(f_vAngle);
+		f_Z = a_fRadius * sinf(f_vAngle);
+
+		// create horizontal strips
+		for(int j = 0; j <= a_nSubdivisions; j++)
+		{
+			// angle for horizontal strips
+			f_hAngle = j * f_hStep;
+
+			// position data
+			f_X = f_XY * cosf(f_hAngle);
+			f_Y = f_XY * sinf(f_hAngle);
+
+			// add to vector
+			points.push_back(vector3(f_X, f_Y, f_Z));
+		}
+	}
+
+	// code for drawing tris
+	// counters
+	int v1, v2;
+
+	for(int i = 0; i < a_nSubdivisions; i++)
+	{
+		// starting points of vertical strips
+		v1 = i * (a_nSubdivisions + 1);
+		v2 = v1 + a_nSubdivisions + 1;
+
+		for (int j = 0; j < a_nSubdivisions; j++, v1++, v2++)
+		{
+			if (i != 0)
+				AddTri(points[v1], points[v2], points[v1 + 1]);
+
+			if (i != a_nSubdivisions - 1)
+				AddTri(points[v1 + 1], points[v2], points[v2 + 1]);
+		}
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
