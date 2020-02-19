@@ -2,7 +2,7 @@
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Ray Schefferine - rls2819@g.rit.edu";
 
 	//Set the position and target of the camera
 	m_pCameraMngr->SetPositionTargetAndUpward(vector3(5.0f,3.0f,15.0f), ZERO_V3, AXIS_Y);
@@ -53,19 +53,22 @@ void Application::Display(void)
 
 	//calculate the current position
 	vector3 v3CurrentPos;
-	
-
-
-
+	int i_PosIndex = 0;
 
 	//your code goes here
 	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
 	//-------------------
-	
 
+	//v3CurrentPos = glm::lerp(v3CurrentPos, m_stopsList[i_PosIndex], fTimer);
 
-	
-	matrix4 m4Model = glm::translate(v3CurrentPos);
+	if (fTimer > 1.0f)
+	{
+		v3CurrentPos = m_stopsList[i_PosIndex];
+		i_PosIndex++;
+		fTimer = 0;
+	}
+
+	matrix4 m4Model = glm::translate(glm::lerp(v3CurrentPos, m_stopsList[i_PosIndex], fTimer));
 	m_pModel->SetModelMatrix(m4Model);
 
 	m_pMeshMngr->Print("\nTimer: ");//Add a line on top
