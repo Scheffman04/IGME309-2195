@@ -25,11 +25,13 @@ void Application::Display(void)
 	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
 	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
 
-	matrix4 m4OrientX = glm::rotate(IDENTITY_M4, glm::radians(m_v3Rotation.x), vector3(1.0f, 0.0f, 0.0f));
-	matrix4 m4OrientY = glm::rotate(IDENTITY_M4, glm::radians(m_v3Rotation.y), vector3(0.0f, 1.0f, 0.0f));
-	matrix4 m4OrientZ = glm::rotate(IDENTITY_M4, glm::radians(m_v3Rotation.z), vector3(0.0f, 0.0f, 1.0f));
+	//matrix4 m4OrientX = glm::rotate(IDENTITY_M4, glm::radians(m_v3Rotation.x), vector3(1.0f, 0.0f, 0.0f));
+	//matrix4 m4OrientY = glm::rotate(IDENTITY_M4, glm::radians(m_v3Rotation.y), vector3(0.0f, 1.0f, 0.0f));
+	//matrix4 m4OrientZ = glm::rotate(IDENTITY_M4, glm::radians(m_v3Rotation.z), vector3(0.0f, 0.0f, 1.0f));
 
 	//m_m4Orientation = m4OrientX * m4OrientY * m4OrientZ;
+
+	// using a quaternion allows me to circumvent gimbal lock
 	m_m4Model = glm::toMat4(m_qOrientation);
 
 	m_pMesh->Render(m4Projection, m4View, m_m4Model);
