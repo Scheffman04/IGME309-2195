@@ -150,13 +150,54 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 	}
 }
 
+// method for finding the rotations the camera should be making
+void MyCamera::CalculateRotations(float xAngle, float yAngle)
+{
+	// calculate forward vector
+	vector3 m_v3Forward = glm::normalize(m_v3Target - m_v3Position);
+	
+	// calculate quaternions for pitch and yaw 
+	glm::quat q_pitchQuat = glm::angleAxis(cosf(xAngle), glm::cross(m_v3Forward, vector3(0, 1, 0)) * sinf(xAngle));
+	glm::quat q_yawQuat = glm::angleAxis(cosf(yAngle), vector3(0, 1, 0) * sinf(yAngle));
+
+	// quaternion holders for pitch and yaw
+	glm::quat q_tempQuat = q_pitchQuat * q_yawQuat;
+
+	// forward quaternion
+	glm::quat q_forwardQuat = glm::quat(0.0f, m_v3Forward);
+
+	// multiply the forward quat by temporary quaternion
+	q_forwardQuat = q_tempQuat * q_forwardQuat;
+
+	// calculate new forward vector
+	glm::vec3 m_v3NewForward(q_forwardQuat.x, q_forwardQuat.y, q_forwardQuat.z);
+
+	// set target position using new forward
+	SetTarget(m_v3Position + m_v3NewForward);
+}
 void MyCamera::MoveForward(float a_fDistance)
 {
-	//The following is just an example and does not take in account the forward vector (AKA view vector)
-	m_v3Position += vector3(0.0f, 0.0f,-a_fDistance);
-	m_v3Target += vector3(0.0f, 0.0f, -a_fDistance);
-	m_v3Above += vector3(0.0f, 0.0f, -a_fDistance);
-}
+	// get view matrix
+	glm::mat4 m_m4View = GetViewMatrix();
 
-void MyCamera::MoveVertical(float a_fDistance){}//Needs to be defined
-void MyCamera::MoveSideways(float a_fDistance){}//Needs to be defined
+	// calculate forward vector
+	vector3 m_v3Forward = glm::normalize(m_v3Target - m_v3Position);
+
+	// increment position based upon forward vector
+	m_v3Position += m_v3Forward * a_fDistance;
+	m_v3Target += m_v3Forward * a_fDistance;
+	m_v3Above += m_v3Forward * a_fDistance;
+}
+void MyCamera::MoveSideways(float a_fDistance)
+{
+	// get view matrix
+	glm::mat4 m_m4View = GetViewMatrix();
+
+	// calculate right vector
+	vector3 m_v3Right = glm::vec3(m_m4View[0][0], m_m4View[1][0], m_m4View[2][0]);
+
+	// movement based on right vector
+	m_v3Position += m_v3Right * a_fDistance;
+	m_v3Target += m_v3Right * a_fDistance;
+	m_v3Above += m_v3Right * a_fDistance;
+}

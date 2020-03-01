@@ -230,6 +230,9 @@ public:
 	OUTPUT: ---
 	*/
 	void MoveSideways(float a_fDistance = 0.1f);
+
+	// Helper meth for calculating camera rotations
+	void CalculateRotations(float xAngle, float yAngle);
 };
 
 } //namespace Simplex
