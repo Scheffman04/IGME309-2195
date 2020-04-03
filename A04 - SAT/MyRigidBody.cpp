@@ -287,6 +287,124 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	(eSATResults::SAT_NONE has a value of 0)
 	*/
 
-	//there is no axis test that separates this two objects
-	return eSATResults::SAT_NONE;
+	// Calculate the local axes for current object
+	vector3 v3_Ax = glm::normalize(GetModelMatrix() * vector4(1, 0, 0, 0));
+	vector3 v3_Ay = glm::normalize(GetModelMatrix() * vector4(0, 1, 0, 0));
+	vector3 v3_Az = glm::normalize(GetModelMatrix() * vector4(0, 0, 1, 0));
+
+	// Calculate the local axes for other object
+	vector3 v3_Bx = glm::normalize(a_pOther->GetModelMatrix() * vector4(1, 0, 0, 0));
+	vector3 v3_By = glm::normalize(a_pOther->GetModelMatrix() * vector4(0, 1, 0, 0));
+	vector3 v3_Bz = glm::normalize(a_pOther->GetModelMatrix() * vector4(0, 0, 1, 0));
+
+	// get the local halfwidths
+	vector3 v3_aHalf = GetHalfWidth();
+	vector3 v3_bHalf = a_pOther->GetHalfWidth();
+
+	// calculate displacement vector
+	vector3 v3_displacement = (((a_pOther->GetMaxGlobal() + a_pOther->GetMinGlobal()) / 2) - ((GetMaxGlobal() + GetMinGlobal()) / 2));
+
+	// check x axis for current object
+	if (glm::abs(glm::dot(v3_displacement, v3_Ax)) > (v3_aHalf.x + glm::abs(v3_bHalf.x * glm::dot(v3_Ax, v3_Bx)) + glm::abs(v3_bHalf.y * glm::dot(v3_Ax, v3_By)) + glm::abs(v3_bHalf.z * glm::dot(v3_Ax, v3_Bz))))
+	{
+		// positive result
+		return eSATResults::SAT_AX;
+	}
+
+	// check y axis for current object
+	else if (glm::abs(glm::dot(v3_displacement, v3_Ay)) > (v3_aHalf.y + glm::abs(v3_bHalf.x * glm::dot(v3_Ay, v3_Bx)) + glm::abs(v3_bHalf.y * glm::dot(v3_Ay, v3_By)) + glm::abs(v3_bHalf.z * glm::dot(v3_Ay, v3_Bz))))
+	{
+		// positive result
+		return eSATResults::SAT_AY;
+	}
+
+	// check z axis for current object
+	else if (glm::abs(glm::dot(v3_displacement, v3_Az)) > (v3_aHalf.z + glm::abs(v3_bHalf.x * glm::dot(v3_Az, v3_Bx)) + glm::abs(v3_bHalf.y * glm::dot(v3_Az, v3_By)) + glm::abs(v3_bHalf.z * glm::dot(v3_Az, v3_Bz))))
+	{
+		// positive result
+		return eSATResults::SAT_AZ;
+	}
+	
+
+	// check x axis for other object
+	else if (glm::abs(glm::dot(v3_displacement, v3_Bx)) > (v3_bHalf.x + glm::abs(v3_aHalf.x * glm::dot(v3_Ax, v3_Bx)) + glm::abs(v3_aHalf.y * glm::dot(v3_Ay, v3_Bx)) + glm::abs(v3_aHalf.z * glm::dot(v3_Az, v3_Bx))))
+	{
+		// positive result
+		return eSATResults::SAT_BX;
+	}
+
+	// check y axis for other object
+	else if (glm::abs(glm::dot(v3_displacement, v3_By)) > (v3_bHalf.y + glm::abs(v3_aHalf.x * glm::dot(v3_Ax, v3_By)) + glm::abs(v3_aHalf.y * glm::dot(v3_Ay, v3_By)) + glm::abs(v3_aHalf.z * glm::dot(v3_Az, v3_By))))
+	{
+		// positive result
+		return eSATResults::SAT_BY;
+	}
+
+	// check z axis for other object
+	else if (glm::abs(glm::dot(v3_displacement, v3_Bz)) > (v3_bHalf.z + glm::abs(v3_aHalf.x * glm::dot(v3_Ax, v3_Bz)) + glm::abs(v3_aHalf.y * glm::dot(v3_Ay, v3_Bz)) + glm::abs(v3_aHalf.z * glm::dot(v3_Az, v3_Bz))))
+	{
+		// positive result
+		return eSATResults::SAT_BZ;
+	}
+
+
+	// check x axis diagonals
+	else if (glm::abs(glm::dot(v3_displacement, glm::cross(v3_Ax, v3_Bx))) > (glm::abs(v3_aHalf.y * glm::dot(v3_Az, v3_Bx)) + glm::abs(v3_aHalf.z * glm::dot(v3_Ay, v3_Bx)) + glm::abs(v3_bHalf.y * glm::dot(v3_Ax, v3_Bz)) + glm::abs(v3_bHalf.z * glm::dot(v3_Ax, v3_By))))
+	{
+		// positive result
+		return eSATResults::SAT_AXxBX;
+	}
+	
+	else if (glm::abs(glm::dot(v3_displacement, glm::cross(v3_Ax, v3_By))) > (glm::abs(v3_aHalf.y * glm::dot(v3_Az, v3_By)) + glm::abs(v3_aHalf.z * glm::dot(v3_Ay, v3_By)) + glm::abs(v3_bHalf.x * glm::dot(v3_Ax, v3_Bz)) + glm::abs(v3_bHalf.z * glm::dot(v3_Ax, v3_Bx))))
+	{
+		// positive result
+		return eSATResults::SAT_AXxBY;
+	}
+	
+	else if (glm::abs(glm::dot(v3_displacement, v3_Bz)) > (glm::abs(v3_aHalf.y * glm::dot(v3_Az, v3_Bz)) + glm::abs(v3_aHalf.z * glm::dot(v3_Ay, v3_Bz)) + glm::abs(v3_bHalf.x * glm::dot(v3_Ax, v3_By)) + glm::abs(v3_bHalf.y * glm::dot(v3_Ax, v3_Bx))))
+	{
+		// positive result
+		return eSATResults::SAT_AXxBZ;
+	}
+
+
+	// check y axis diagonals
+	else if (glm::abs(glm::dot(v3_displacement, glm::cross(v3_Ay, v3_Bx))) > (glm::abs(v3_aHalf.x * glm::dot(v3_Az, v3_Bx)) + glm::abs(v3_aHalf.z * glm::dot(v3_Ax, v3_Bx)) + glm::abs(v3_bHalf.y * glm::dot(v3_Ay, v3_Bz)) + glm::abs(v3_bHalf.z * glm::dot(v3_Ay, v3_By))))
+	{
+		// positive result
+		return eSATResults::SAT_AYxBX;
+	}
+	else if (glm::abs(glm::dot(v3_displacement, glm::cross(v3_Ay, v3_By))) > (glm::abs(v3_aHalf.x * glm::dot(v3_Az, v3_By)) + glm::abs(v3_aHalf.z * glm::dot(v3_Ax, v3_By)) + glm::abs(v3_bHalf.x * glm::dot(v3_Ay, v3_Bz)) + glm::abs(v3_bHalf.z * glm::dot(v3_Ay, v3_Bx))))
+	{
+		// positive result
+		return eSATResults::SAT_AYxBY;
+	}
+	else if (glm::abs(glm::dot(v3_displacement, glm::cross(v3_Ay, v3_Bz))) > (glm::abs(v3_aHalf.x * glm::dot(v3_Az, v3_Bz)) + glm::abs(v3_aHalf.z * glm::dot(v3_Ax, v3_Bz)) + glm::abs(v3_bHalf.x * glm::dot(v3_Ay, v3_By)) + glm::abs(v3_bHalf.y * glm::dot(v3_Ay, v3_Bx))))
+	{
+		// positive result
+		return eSATResults::SAT_AYxBZ;
+	}
+
+
+	// check z axis diagonals
+	else if (glm::abs(glm::dot(v3_displacement, glm::cross(v3_Az, v3_Bx))) > (glm::abs(v3_aHalf.x * glm::dot(v3_Ay, v3_Bx)) + glm::abs(v3_aHalf.y * glm::dot(v3_Ax, v3_Bx)) + glm::abs(v3_bHalf.y * glm::dot(v3_Az, v3_Bz)) + glm::abs(v3_bHalf.z * glm::dot(v3_Az, v3_By))))
+	{
+		// positive result
+		return eSATResults::SAT_AZxBX;
+	}
+	else if (glm::abs(glm::dot(v3_displacement, glm::cross(v3_Az, v3_By))) > (glm::abs(v3_aHalf.x * glm::dot(v3_Ay, v3_By)) + glm::abs(v3_aHalf.y * glm::dot(v3_Ax, v3_By)) + glm::abs(v3_bHalf.x * glm::dot(v3_Az, v3_Bz)) + glm::abs(v3_bHalf.z * glm::dot(v3_Az, v3_Bx))))
+	{
+		// positive result
+		return eSATResults::SAT_AZxBY;
+	}
+	else if (glm::abs(glm::dot(v3_displacement, glm::cross(v3_Az, v3_Bz))) > (glm::abs(v3_aHalf.x * glm::dot(v3_Ay, v3_Bz)) + glm::abs(v3_aHalf.y * glm::dot(v3_Ax, v3_Bz)) + glm::abs(v3_bHalf.x * glm::dot(v3_Az, v3_By)) + glm::abs(v3_bHalf.y * glm::dot(v3_Az, v3_Bx))))
+	{
+		// positive result
+		return eSATResults::SAT_AZxBZ;
+	}
+	else
+	{
+		//there is no axis test that separates this two objects
+		return eSATResults::SAT_NONE;
+	}
 }
