@@ -1,8 +1,8 @@
 #pragma once
 // Octant file based off of example insolution
 
-#ifndef __OCTANTCLASS_H_
-#define __OCTANTCLASS_H_
+#ifndef __MYOCTANTCLASS_H_
+#define __MYOCTANTCLASS_H_
 
 #include "MyEntityManager.h"
 
@@ -10,7 +10,7 @@ namespace Simplex
 {
 
 	// class definition
-	class Octant
+	class MyOctant
 	{
 
 		static uint m_uOctantCount; // stores the number of octants created 
@@ -30,34 +30,34 @@ namespace Simplex
 		vector3 m_v3Min = vector3(0.0f); // store the minimum vector of the octant
 		vector3 m_v3Max = vector3(0.0f); // store the maximum vector of the octant
 
-		Octant* m_pParent = nullptr;// store the parent of current octant
-		Octant* m_pChild[8];// store the children of the current octant
+		MyOctant* m_pParent = nullptr;// store the parent of current octant
+		MyOctant* m_pChild[8];// store the children of the current octant
 
 		std::vector<uint> m_EntityList; //Index in Entity Manager
 
-		Octant* m_pRoot = nullptr;//Root octant
-		std::vector<Octant*> m_lChild; //list of nodes that contain objects (root only)
+		MyOctant* m_pRoot = nullptr;//Root octant
+		std::vector<MyOctant*> m_lChild; //list of nodes that contain objects (root only)
 	public:
 		// constructors
 		// octant containing all entity instances in the mesh manager
-		Octant(uint a_nMaxLevel = 2, uint a_nIdealEntityCount = 5);
+		MyOctant(uint a_nMaxLevel = 2, uint a_nIdealEntityCount = 5);
 
 		// octant with a specific center point and size
-		Octant(vector3 a_v3Center, float a_fSize);
+		MyOctant(vector3 a_v3Center, float a_fSize);
 
 		// copy constructor
-		Octant(Octant const& other);
+		MyOctant(MyOctant const& other);
 
 		// copy assignment operator
-		Octant& operator=(Octant const& other);
+		MyOctant& operator=(MyOctant const& other);
 
 		// destructor
-		~Octant(void);
+		~MyOctant(void);
 
 
 		// methods
 		// swaps contents of Octants
-		void Swap(Octant& other);
+		void Swap(MyOctant& other);
 
 		// returns octants size
 		float GetSize(void);
@@ -88,10 +88,10 @@ namespace Simplex
 		void Subdivide(void);
 
 		// returns the child of the current octant
-		Octant* GetChild(uint a_nChild);
+		MyOctant* GetChild(uint a_nChild);
 
 		// retunrs the parent of the current octant
-		Octant* GetParent(void);
+		MyOctant* GetParent(void);
 
 		// returns whether this octant is a leaf (has no children)
 		bool IsLeaf(void);
@@ -112,7 +112,7 @@ namespace Simplex
 		uint GetOctantCount(void);
 		void BurnDownTree(void);
 
-		std::vector<Octant*> GetPopulatedLeaves();
+		std::vector<MyOctant*> GetPopulatedLeaves();
 		std::vector<uint> GetEntityList();
 	private:
 		
@@ -128,4 +128,4 @@ namespace Simplex
 	};
 
 }
-#endif // !__OCTANTCLASS_H_
+#endif // !__MYOCTANTCLASS_H_

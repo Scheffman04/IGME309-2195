@@ -34,7 +34,7 @@ void Application::InitVariables(void)
 
 	// initialize octant info
 	m_uOctantLevels = 1;
-	m_pRoot = new Octant(m_uOctantLevels, 5);
+	m_pRoot = new MyOctant(m_uOctantLevels, 5);
 	m_pEntityMngr->Update(useOctree);
 }
 void Application::Update(void)

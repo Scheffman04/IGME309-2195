@@ -1,25 +1,25 @@
 // octant class 
-#include "Octant.h"
+#include "MyOctant.h"
 
 using namespace Simplex;
 using namespace std;
 
-uint Octant::m_uMaxLevel = 3;
-uint Octant::m_uIdealEntityCount = 5;
-uint Octant::m_uOctantCount = 0;
+uint MyOctant::m_uMaxLevel = 3;
+uint MyOctant::m_uIdealEntityCount = 5;
+uint MyOctant::m_uOctantCount = 0;
 
 // property definitions
-uint Octant::GetOctantCount(void) { return m_uOctantCount; }
-Octant* Octant::GetParent(void) { return m_pParent; }
+uint MyOctant::GetOctantCount(void) { return m_uOctantCount; }
+MyOctant* MyOctant::GetParent(void) { return m_pParent; }
 
-float Octant::GetSize(void) { return m_fSize; }
-vector3 Octant::GetCenterGlobal(void) { return m_v3Center; }
-vector3 Octant::GetMinGlobal(void) { return m_v3Min; }
-vector3 Octant::GetMaxGlobal(void) { return m_v3Max; }
+float MyOctant::GetSize(void) { return m_fSize; }
+vector3 MyOctant::GetCenterGlobal(void) { return m_v3Center; }
+vector3 MyOctant::GetMinGlobal(void) { return m_v3Min; }
+vector3 MyOctant::GetMaxGlobal(void) { return m_v3Max; }
 
 
 // initialization
-void Octant::Init(void)
+void MyOctant::Init(void)
 {
 	// stores singleton references
 	m_pEntityMngr = MyEntityManager::GetInstance();
@@ -47,7 +47,7 @@ void Octant::Init(void)
 }
 
 // swap method
-void Octant::Swap(Octant& other)
+void MyOctant::Swap(MyOctant& other)
 {
 	// stores singleton references
 	m_pEntityMngr = MyEntityManager::GetInstance();
@@ -75,7 +75,7 @@ void Octant::Swap(Octant& other)
 }
 
 // release method
-void Octant::Release()
+void MyOctant::Release()
 {
 	// check level value
 	if (m_uLevel == 0)
@@ -94,7 +94,7 @@ void Octant::Release()
 }
 
 // base constructor
-Octant::Octant(uint a_nMaxLevel, uint a_nIdealEntityCount)
+MyOctant::MyOctant(uint a_nMaxLevel, uint a_nIdealEntityCount)
 {
 	// initialize variables
 	m_uOctantCount = 0;
@@ -152,7 +152,7 @@ Octant::Octant(uint a_nMaxLevel, uint a_nIdealEntityCount)
 }
 
 // child node constructor
-Octant::Octant(vector3 a_v3Center, float a_fSize)
+MyOctant::MyOctant(vector3 a_v3Center, float a_fSize)
 {
 	// initialize variables
 	Init();
@@ -170,7 +170,7 @@ Octant::Octant(vector3 a_v3Center, float a_fSize)
 }
 
 // copy constructor
-Octant::Octant(Octant const& other)
+MyOctant::MyOctant(MyOctant const& other)
 {
 	// store singleton references
 	m_pEntityMngr = MyEntityManager::GetInstance();
@@ -199,7 +199,7 @@ Octant::Octant(Octant const& other)
 }
 
 // copy assignment operator
-Octant& Octant::operator=(Octant const& other)
+MyOctant& MyOctant::operator=(MyOctant const& other)
 {
 	// check if trying to copy self
 	if (this != &other)
@@ -209,7 +209,7 @@ Octant& Octant::operator=(Octant const& other)
 		Init();
 
 		// swap data
-		Octant temp(other);
+		MyOctant temp(other);
 		Swap(temp);
 	}
 
@@ -218,14 +218,14 @@ Octant& Octant::operator=(Octant const& other)
 }
 
 // destructor
-Octant::~Octant()
+MyOctant::~MyOctant()
 {
 	Release();
 }
 
 //Tree Construction methods
 // create tree
-void Octant::ConstructTree(uint a_nMaxLevel)
+void MyOctant::ConstructTree(uint a_nMaxLevel)
 {
 	// check if current is root node
 	if (m_uLevel != 0) return;
@@ -253,7 +253,7 @@ void Octant::ConstructTree(uint a_nMaxLevel)
 }
 
 // subdivision method
-void Octant::Subdivide(void)
+void MyOctant::Subdivide(void)
 {
 	// check if max level or previously subdivided octant
 	if (m_uLevel >= m_uMaxLevel) return;
@@ -264,14 +264,14 @@ void Octant::Subdivide(void)
 	float actualHalfWidth = m_fSize / 2.0f;
 
 	// create child nodes
-	m_pChild[0] = new Octant(vector3(m_v3Center.x + subHalfWidth, m_v3Center.y + subHalfWidth, m_v3Center.z + subHalfWidth), actualHalfWidth);
-	m_pChild[1] = new Octant(vector3(m_v3Center.x + subHalfWidth, m_v3Center.y + subHalfWidth, m_v3Center.z - subHalfWidth), actualHalfWidth);
-	m_pChild[2] = new Octant(vector3(m_v3Center.x + subHalfWidth, m_v3Center.y - subHalfWidth, m_v3Center.z + subHalfWidth), actualHalfWidth);
-	m_pChild[3] = new Octant(vector3(m_v3Center.x + subHalfWidth, m_v3Center.y - subHalfWidth, m_v3Center.z - subHalfWidth), actualHalfWidth);
-	m_pChild[4] = new Octant(vector3(m_v3Center.x - subHalfWidth, m_v3Center.y + subHalfWidth, m_v3Center.z + subHalfWidth), actualHalfWidth);
-	m_pChild[5] = new Octant(vector3(m_v3Center.x - subHalfWidth, m_v3Center.y + subHalfWidth, m_v3Center.z - subHalfWidth), actualHalfWidth);
-	m_pChild[6] = new Octant(vector3(m_v3Center.x - subHalfWidth, m_v3Center.y - subHalfWidth, m_v3Center.z + subHalfWidth), actualHalfWidth);
-	m_pChild[7] = new Octant(vector3(m_v3Center.x - subHalfWidth, m_v3Center.y - subHalfWidth, m_v3Center.z - subHalfWidth), actualHalfWidth);
+	m_pChild[0] = new MyOctant(vector3(m_v3Center.x + subHalfWidth, m_v3Center.y + subHalfWidth, m_v3Center.z + subHalfWidth), actualHalfWidth);
+	m_pChild[1] = new MyOctant(vector3(m_v3Center.x + subHalfWidth, m_v3Center.y + subHalfWidth, m_v3Center.z - subHalfWidth), actualHalfWidth);
+	m_pChild[2] = new MyOctant(vector3(m_v3Center.x + subHalfWidth, m_v3Center.y - subHalfWidth, m_v3Center.z + subHalfWidth), actualHalfWidth);
+	m_pChild[3] = new MyOctant(vector3(m_v3Center.x + subHalfWidth, m_v3Center.y - subHalfWidth, m_v3Center.z - subHalfWidth), actualHalfWidth);
+	m_pChild[4] = new MyOctant(vector3(m_v3Center.x - subHalfWidth, m_v3Center.y + subHalfWidth, m_v3Center.z + subHalfWidth), actualHalfWidth);
+	m_pChild[5] = new MyOctant(vector3(m_v3Center.x - subHalfWidth, m_v3Center.y + subHalfWidth, m_v3Center.z - subHalfWidth), actualHalfWidth);
+	m_pChild[6] = new MyOctant(vector3(m_v3Center.x - subHalfWidth, m_v3Center.y - subHalfWidth, m_v3Center.z + subHalfWidth), actualHalfWidth);
+	m_pChild[7] = new MyOctant(vector3(m_v3Center.x - subHalfWidth, m_v3Center.y - subHalfWidth, m_v3Center.z - subHalfWidth), actualHalfWidth);
 
 	// loop through and set values for child nodes
 	for (int i = 0; i < 8; i++)
@@ -291,7 +291,7 @@ void Octant::Subdivide(void)
 }
 
 // ID method
-void Octant::AssignIDtoEntity(void)
+void MyOctant::AssignIDtoEntity(void)
 {
 	// recursively loop and assign IDs
 	for (int i = 0; i < m_uChildren; i++)
@@ -321,7 +321,7 @@ void Octant::AssignIDtoEntity(void)
 
 // list methods
 // list construction
-void Octant::ConstructList(void)
+void MyOctant::ConstructList(void)
 {
 	// loop through children and recursively create their lists
 	for (int i = 0; i < m_uChildren; i++)
@@ -337,7 +337,7 @@ void Octant::ConstructList(void)
 }
 
 // clear list
-void Octant::ClearEntityList(void)
+void MyOctant::ClearEntityList(void)
 {
 	// loop and recursively clear entity lists for each node
 	for (int i = 0; i < m_uChildren; i++)
@@ -351,7 +351,7 @@ void Octant::ClearEntityList(void)
 
 // diplay methods
 // displays octant with specified color
-void Octant::Display(uint a_nIndex, vector3 a_v3Color)
+void MyOctant::Display(uint a_nIndex, vector3 a_v3Color)
 {
 	// check if this is the correct octant
 	if (m_uID == a_nIndex)
@@ -370,7 +370,7 @@ void Octant::Display(uint a_nIndex, vector3 a_v3Color)
 	}
 }
 
-void Octant::Display(vector3 a_v3Color)
+void MyOctant::Display(vector3 a_v3Color)
 {
 	// loop child nodes and display them
 	for (int i = 0; i < m_uChildren; i++)
@@ -383,7 +383,7 @@ void Octant::Display(vector3 a_v3Color)
 	m_pMeshMngr->AddWireCubeToRenderList(octMatrix, a_v3Color, RENDER_WIRE);
 }
 
-void Octant::DisplayLeafs(vector3 a_v3Color)
+void MyOctant::DisplayLeafs(vector3 a_v3Color)
 {
 	// loop child nodes and display leaf nodes
 	for (int i = 0; i < m_lChild.size(); i++)
@@ -397,7 +397,7 @@ void Octant::DisplayLeafs(vector3 a_v3Color)
 }
 
 // helper methods
-bool Octant::IsColliding(uint a_uRBIndex)
+bool MyOctant::IsColliding(uint a_uRBIndex)
 {
 	// check entity count and whether this is a valid entry
 	uint entityCount = m_pEntityMngr->GetEntityCount();
@@ -423,7 +423,7 @@ bool Octant::IsColliding(uint a_uRBIndex)
 }
 
 // get children at index
-Octant* Octant::GetChild(uint a_nChild)
+MyOctant* MyOctant::GetChild(uint a_nChild)
 {
 	// check for valid number of children
 	if (a_nChild > 7) return nullptr;
@@ -433,7 +433,7 @@ Octant* Octant::GetChild(uint a_nChild)
 }
 
 // check for children
-bool Octant::IsLeaf(void)
+bool MyOctant::IsLeaf(void)
 {
 	if (m_uChildren != 0) return false;
 
@@ -441,7 +441,7 @@ bool Octant::IsLeaf(void)
 }
 
 // check if node has too many entities
-bool Octant::ContainsMoreThan(uint a_nEntities)
+bool MyOctant::ContainsMoreThan(uint a_nEntities)
 {
 	// get entity count and create counter variable
 	uint entityCount = m_pEntityMngr->GetEntityCount();
@@ -459,7 +459,7 @@ bool Octant::ContainsMoreThan(uint a_nEntities)
 }
 
 // recursively kills all branches
-void Octant::KillBranches(void)
+void MyOctant::KillBranches(void)
 {
 	// loop through child nodes
 	for(int i = 0; i < m_uChildren; i++)
@@ -476,19 +476,19 @@ void Octant::KillBranches(void)
 }
 
 // list of populated leaves
-vector<Octant*> Octant::GetPopulatedLeaves()
+vector<MyOctant*> MyOctant::GetPopulatedLeaves()
 {
 	return m_lChild;
 }
 
 // list of entities in scene
-vector<uint> Octant::GetEntityList()
+vector<uint> MyOctant::GetEntityList()
 {
 	return m_EntityList;
 }
 
 // destroy tree
-void Octant::BurnDownTree(void)
+void MyOctant::BurnDownTree(void)
 {
 	// find root
 	if(m_uLevel == 0)

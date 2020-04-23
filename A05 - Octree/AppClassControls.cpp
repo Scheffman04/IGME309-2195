@@ -131,7 +131,7 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 			++m_uOctantLevels;
 
 			SafeDelete(m_pRoot);
-			m_pRoot = new Octant(m_uOctantLevels, 5);
+			m_pRoot = new MyOctant(m_uOctantLevels, 5);
 
 		}
 		break;
@@ -142,7 +142,7 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 			--m_uOctantLevels;
 
 			SafeDelete(m_pRoot);
-			m_pRoot = new Octant(m_uOctantLevels, 5);
+			m_pRoot = new MyOctant(m_uOctantLevels, 5);
 
 		}
 		break;
