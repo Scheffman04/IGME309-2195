@@ -165,7 +165,7 @@ Simplex::MyEntityManager::MyEntityManager(MyEntityManager const& a_pOther){ }
 Simplex::MyEntityManager& Simplex::MyEntityManager::operator=(MyEntityManager const& a_pOther) { return *this; }
 Simplex::MyEntityManager::~MyEntityManager(){Release();};
 // other methods
-void Simplex::MyEntityManager::Update(void)
+void Simplex::MyEntityManager::Update(bool octreeEnabled)
 {
 	//Clear all collisions
 	for (uint i = 0; i < m_uEntityCount; i++)
@@ -178,7 +178,21 @@ void Simplex::MyEntityManager::Update(void)
 	{
 		for (uint j = i + 1; j < m_uEntityCount; j++)
 		{
-			m_mEntityArray[i]->IsColliding(m_mEntityArray[j]);
+			// Check if Octree is enabled
+			if (!octreeEnabled)
+			{
+				m_mEntityArray[i]->IsColliding(m_mEntityArray[j]);
+			}
+			// otherwise, use dimension logic from Octree
+			else
+			{
+				// check if we share a dimension first
+				if (m_mEntityArray[i]->SharesDimension(m_mEntityArray[j]))
+				{
+					// check collision
+					bool colliding = m_mEntityArray[i]->IsColliding(m_mEntityArray[j]);
+				}
+			}
 		}
 	}
 }

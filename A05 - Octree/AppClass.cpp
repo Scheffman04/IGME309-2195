@@ -1,4 +1,6 @@
 #include "AppClass.h"
+#include<vector>
+using namespace std;
 using namespace Simplex;
 void Application::InitVariables(void)
 {
@@ -29,8 +31,11 @@ void Application::InitVariables(void)
 			m_pEntityMngr->SetModelMatrix(m4Position);
 		}
 	}
+
+	// initialize octant info
 	m_uOctantLevels = 1;
-	m_pEntityMngr->Update();
+	m_pRoot = new Octant(m_uOctantLevels, 5);
+	m_pEntityMngr->Update(useOctree);
 }
 void Application::Update(void)
 {
@@ -44,7 +49,7 @@ void Application::Update(void)
 	CameraRotation();
 	
 	//Update Entity Manager
-	m_pEntityMngr->Update();
+	m_pEntityMngr->Update(useOctree);
 
 	//Add objects to render list
 	m_pEntityMngr->AddEntityToRenderList(-1, true);
@@ -55,7 +60,17 @@ void Application::Display(void)
 	ClearScreen();
 
 	//display octree
-	//m_pRoot->Display();
+	if (displayOctree)
+	{
+		if (m_uOctantID == -1)
+		{
+			m_pRoot->Display(C_YELLOW);
+		}
+		else
+		{
+			m_pRoot->Display(m_uOctantID, C_YELLOW);
+		}
+	}
 	
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
@@ -74,6 +89,9 @@ void Application::Display(void)
 }
 void Application::Release(void)
 {
+	// delete the root
+	SafeDelete(m_pRoot);
+
 	//release GUI
 	ShutdownGUI();
 }
